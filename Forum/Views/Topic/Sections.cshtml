@@ -1,0 +1,67 @@
+﻿@using Forum.ViewModels;
+@using Forum.Helpers;
+@model SectionsViewModel
+
+@{
+    ViewBag.Title = "Sections";
+    bool IsAdmin = false;
+}
+<script src="~/Scripts/Section.js"></script>
+
+<h2>Sections</h2>
+
+@if (Html.IsRoleOrStatus("Admin"))
+{
+    IsAdmin = true;
+}
+
+@if (IsAdmin)
+{
+    <a href="#" onclick="ShowForm()">New Section</a> <br><br>
+}
+
+<div>
+    <table class="table">
+        @foreach (string sectionName in Model.Sections)
+        {
+            <tr>
+                <td style="font-size:20px">@Html.ActionLink(@sectionName, "Topics", "Topic", routeValues: new { section = @sectionName }, htmlAttributes: new { @class = "decoration" }) </td>
+                <td style="width: 50px; text-align: center; font-size: 20px">
+                    @if (Model.TopicsCount.ContainsKey(@sectionName))
+                    {
+                        @Model.TopicsCount[@sectionName]
+                    }
+                    else
+                    {
+                        <span> 0 </span>
+                    }
+                </td>
+                @if (IsAdmin)
+                {
+                    <td style="width:50px"> <a href="#" onclick="DeleteSection('@sectionName')"> Delete </a> </td>
+                }
+            </tr>
+        }
+    </table>
+</div>
+
+@if (IsAdmin)
+{
+    <div class="b-popup" hidden="hidden" id="section_form">
+        <div class="b-popup-content">
+            <div>
+                <label>Section Name:</label>
+                <img id="close_lines" style="margin-left:115px" src="/Content/Images/cross-lines.jpg" onclick="HideForm()" />
+            </div>
+
+            <div>
+                <div>
+                    <input type="text" id="section_name" />
+                    <input type="button" onclick="CreateSection()" value="Create" style="margin-top:5px" />
+                </div>
+                <label id="error_section" style="color:red;margin-left:50px"></label>
+            </div>
+        </div>
+    </div>
+}
+

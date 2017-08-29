@@ -1,0 +1,14 @@
+D:\C#\Forum\DataModel\bin\Debug\DataModel.dll.config
+D:\C#\Forum\DataModel\bin\Debug\DataModel.dll
+D:\C#\Forum\DataModel\bin\Debug\DataModel.pdb
+D:\C#\Forum\DataModel\bin\Debug\Core.dll
+D:\C#\Forum\DataModel\bin\Debug\EntityFramework.dll
+D:\C#\Forum\DataModel\bin\Debug\EntityFramework.SqlServer.dll
+D:\C#\Forum\DataModel\bin\Debug\Core.pdb
+D:\C#\Forum\DataModel\bin\Debug\EntityFramework.xml
+D:\C#\Forum\DataModel\bin\Debug\EntityFramework.SqlServer.xml
+D:\C#\Forum\DataModel\obj\Debug\DataModel.csprojResolveAssemblyReference.cache
+D:\C#\Forum\DataModel\obj\Debug\DataModel.dll
+D:\C#\Forum\DataModel\obj\Debug\DataModel.pdb
+D:\C#\Forum\DataModel\bin\Debug\Newtonsoft.Json.dll
+D:\C#\Forum\DataModel\bin\Debug\Newtonsoft.Json.xml

@@ -1,0 +1,110 @@
+﻿@using Core.Dto;
+@using Newtonsoft.Json;
+@using Forum.Helpers;
+@model Forum.ViewModels.TopicViewModel
+
+@{
+    ViewBag.Title = Model.Section;
+}
+
+<h2>@Model.Section</h2>
+
+@if (HttpContext.Current.User.Identity.IsAuthenticated)
+{
+    <div>
+        @Html.ActionLink("New Topic", "CreateTopic", "Topic", htmlAttributes: null, routeValues: new { section = @Model.Section })
+    </div>
+}
+
+<br>
+<div>
+    @if (Model.Topics.Count() == 0)
+    {
+        <div style="font-size:20px">
+            There are no topics in this section 
+        </div>
+    }
+    
+    <table class="table">
+        @foreach (TopicDto topic in @Model.Topics)
+        {
+            <tr>
+                @if (topic.Password != null)
+                {
+                    <td style="font-size:15px;">
+                        <a href="#" onclick="ShowForm(@topic.ID)" class="decoration">@topic.Name</a>
+                    </td>
+                }
+                else
+                {
+                    <td style="font-size:15px;">
+                        @Html.ActionLink(@topic.Name, "Topic", "Topic", routeValues: new { id = @topic.ID }, htmlAttributes: new { @class = "decoration" })
+                    </td>
+                }
+                <td style="width:160px">
+                    Author:  @topic.Author <br>
+                    Created: @topic.PostedDate.ToShortDateString(), @topic.PostedDate.ToShortTimeString()
+                </td>
+
+                <td style="width:30px;text-align:center">
+                    @Model.MessagesCount[topic.ID]
+                </td>
+
+                @if (Html.IsRoleOrStatus("Admin"))
+                {
+
+                    <td style="width:50px;text-align:center">
+                        @if (!@topic.IsLocked)
+                        {
+                            @Html.ActionLink("Lock", "LockOrUnLock", "Topic", routeValues: new { id = @topic.ID, IsLocked = true, section = Model.Section }, htmlAttributes: null)
+                        }
+                        else
+                        {
+                            @Html.ActionLink("UnLock", "LockOrUnLock", "Topic", routeValues: new { id = @topic.ID, IsLocked = false, section = Model.Section }, htmlAttributes: null)
+                        }
+                    </td>
+                    <td style="width:100px">
+                        <select data-bind="options: Sections, value: SelectedValue"></select>
+                        <button data-bind="click: function(id) { ChangeSection ( '@topic.ID',id ) }" style="float:right">Move</button>
+                    </td>                    
+                     <td> <a href="#" onclick="DeleteTopic(@topic.ID)"> Delete </a> </td>
+                }
+                else
+                {
+                    <td style="width:50px;text-align:center;font-size:15px">
+                        @if (!@topic.IsLocked)
+                        {
+                            <img src="/Content/Images/UnLocked.jpg" />
+                        }
+                        else
+                        {
+                            <img src="/Content/Images/Locked.jpg" />
+                        }
+                    </td>
+                }
+
+            </tr>
+        }
+    </table>
+</div>
+
+<script>
+    SectionModel = @(new MvcHtmlString(JsonConvert.SerializeObject(Model.Sections)))
+</script>
+
+<script>
+
+    function Sections(data) {
+        var model = this;
+
+        model.Sections = ko.observableArray(data);
+        model.SelectedValue = ko.observable();
+
+        model.ChangeSection = function(id){
+
+            ChangeSection(id, model.SelectedValue()); //Topic.js
+        };
+    }
+
+    ko.applyBindings(new Sections(SectionModel));
+</script>

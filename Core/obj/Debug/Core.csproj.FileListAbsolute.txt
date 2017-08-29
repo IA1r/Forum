@@ -1,0 +1,10 @@
+D:\C#\Forum\Core\bin\Debug\Core.dll
+D:\C#\Forum\Core\bin\Debug\Core.pdb
+D:\C#\Forum\Core\obj\Debug\Core.csprojResolveAssemblyReference.cache
+D:\C#\Forum\Core\obj\Debug\Core.dll
+D:\C#\Forum\Core\obj\Debug\Core.pdb
+D:\C#\Forum\Core\bin\Debug\Core.dll.config
+D:\C#\Forum\Core\bin\Debug\EntityFramework.dll
+D:\C#\Forum\Core\bin\Debug\EntityFramework.SqlServer.dll
+D:\C#\Forum\Core\bin\Debug\EntityFramework.xml
+D:\C#\Forum\Core\bin\Debug\EntityFramework.SqlServer.xml

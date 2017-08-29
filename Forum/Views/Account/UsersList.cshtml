@@ -1,0 +1,18 @@
+﻿@using Forum.ViewModels;
+@using Core.Dto;
+@model UsersListViewModel
+
+@{
+    ViewBag.Title = "Users List";
+}
+<script src="~/Scripts/UsersList.js"></script>
+
+<h2>Users List</h2>
+
+<div>
+    <input type="checkbox" id="checkbox_all" checked="checked" onchange="Check(null)" /> All
+    <input type="checkbox" id="checkbox_banned" onchange="Check(true)" /> Banned
+    <input type="checkbox" id="checkbox_unbanned" onchange="Check(false)" /> UnBanned
+</div>
+
+<table class="table" id="user_list_table"></table>

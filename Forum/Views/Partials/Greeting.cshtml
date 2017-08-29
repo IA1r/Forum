@@ -1,0 +1,29 @@
+﻿@using Forum.Helpers;
+
+@if (!HttpContext.Current.User.Identity.IsAuthenticated)
+{
+    <p> Welcome, <b>Guest</b>! You can: </p>
+    <p> @Html.ActionLink("Login", "Login", "Account") or @Html.ActionLink("Registration", "Register", "Account") </p>
+}
+else
+{
+    if (@Html.IsRoleOrStatus("Admin"))
+    {
+        <div>
+            Hello, <b>@HttpContext.Current.User.Identity.Name</b> !<br>
+            @Html.ActionLink("Profile", "UserProfile", "Account", routeValues: new { login = HttpContext.Current.User.Identity.Name }, htmlAttributes: null)
+            @Html.ActionLink("Users List", "UsersList", "Account", routeValues: null, htmlAttributes: null)
+        </div>
+        @Html.ActionLink("Logout", "Logout", "Account", routeValues: null, htmlAttributes: null)
+    }
+    else
+    {
+        <div>
+            Hello, <b>@HttpContext.Current.User.Identity.Name</b> !<br>
+            @Html.ActionLink("Profile", "UserProfile", "Account", routeValues: new { login = HttpContext.Current.User.Identity.Name }, htmlAttributes: null)
+            @Html.ActionLink("Logout", "Logout", "Account", routeValues: null, htmlAttributes: null)
+        </div>
+        
+    }
+
+}

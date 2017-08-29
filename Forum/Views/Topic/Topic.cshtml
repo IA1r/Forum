@@ -1,0 +1,183 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using Core.Dto;
+@using Forum.Helpers;
+@using Newtonsoft.Json;
+
+@model Forum.ViewModels.MessageViewModel
+
+@{
+    ViewBag.Title = "Topic";
+    string userLogin = HttpContext.Current.User.Identity.Name;
+}
+
+<h2 style="border:solid 1px grey; padding:5px; ">
+    @Model.Topic.Name
+
+    @if (Model.Topic.IsLocked)
+    {
+        <img src="/Content/Images/Locked.jpg" style="float:right" />
+    }
+    else
+    {
+        <img src="/Content/Images/UnLocked.jpg" style="float:right" />
+    }
+</h2>
+
+
+<div style="clear:both">
+
+</div>
+
+
+<!-- ko foreach: Messages -->
+<div style="border:solid 1px black; margin: auto; min-height: 250px; background-color: #D1D1D1;position:relative">
+    <div data-bind="text: 'Posted: ' + (PostedDate().getDay() + 1) +'/'+  (PostedDate().getMonth() + 1) +'/'+  PostedDate().getFullYear() + ', '+ PostedDate().getHours() + ':' + PostedDate().getMinutes() " style="height:30px"></div>
+    <div style="min-width: 200px;background-color: #A2A2A2; float:left; padding:5px ">
+        <div>
+            <div data-bind="text: AuthorName()" style="font-size:18px; float:left"></div>
+        </div>
+        <div style="clear:both"></div>
+        <div> <img data-bind="attr: { src: Image, height: 200, width: 143 } " /></div>
+        <div data-bind="text: 'From: ' + Country()"></div>
+        <div data-bind="text: 'Messages: ' + MessagesCount()"></div>
+        <div data-bind="text: 'Registration: ' + (RegistrationDate().getDay() +1) +'/'+  (RegistrationDate().getMonth() +1) +'/'+  RegistrationDate().getFullYear() "></div>
+    </div>
+    <div data-bind="text: MessageText(), visible: !IsEditMode()" style="width: 600px; float: right; overflow-y: auto; height: 250px; "></div>
+    <div> <textarea data-bind="value: NewMessageText, visible:IsEditMode" rows="14" class="message-style" style="width: 600px;float: right"></textarea> </div>
+
+    <!--ko if: LastEdit() != null-->
+    <div data-bind="text: 'Last edit: ' + (LastEdit().getDay() + 1) +'/'+  (LastEdit().getMonth() + 1) +'/'+  LastEdit().getFullYear() + ', '+ LastEdit().getHours() + ':' + LastEdit().getMinutes(), visible: true" style="width:300px;position:absolute;bottom:5px;margin-left:400px;font-style:italic"></div>
+    <!--/ko-->
+    <!-- ko if: AuthorName() == "@userLogin" -->
+    <button style="position:absolute; bottom:5px; margin-left:650px" data-bind="click: function() { IsEditMode(true) }, visible: !IsEditMode()  ">Edit</button>
+    <button style="position:absolute; bottom:5px; margin-left:600px" data-bind="click: SaveMessage, visible: IsEditMode ">Save</button>
+    <button style="position:absolute; bottom:5px; margin-left:650px" data-bind="click: function(){ IsEditMode(false) },visible: IsEditMode">Close</button>
+    <!-- /ko -->
+    @if (Html.IsRoleOrStatus("Admin"))
+    { <button style="position:absolute; bottom:5px; margin-left:700px" data-bind="click: function() { Delete(MessageID()) }">Delete</button> }
+
+    <div style="clear:both"></div>
+</div>
+<br>
+<!-- /ko -->
+
+<div style="margin-top:20px;float:right">
+    Page @(Model.Messages.PageCount < Model.Messages.PageNumber ? 0 : Model.Messages.PageNumber) of @Model.Messages.PageCount
+
+    @Html.PagedListPager(Model.Messages, page => Url.Action("Topic", new { page }))
+</div>
+<div style="clear:both"></div>
+
+@if (HttpContext.Current.User.Identity.IsAuthenticated)
+{
+    if (!Model.Topic.IsLocked)
+    {
+        if (!@Html.IsBanned())
+        {
+            <div style="margin:auto;width:597px">
+                @using (Html.BeginForm())
+                {
+                    @Html.TextArea("message", htmlAttributes: new { rows = "10", cols = "80", @class = "message-style" });
+                    <input type="submit" value="Submit" style="float:right;" />
+                }
+            </div>
+        }
+        else
+        {
+            <div style="font-size:18px;margin:auto;width:400px"> You are Banned! Sending messages available. </div>
+        }
+    }
+    else
+    {
+        <div style="font-size:18px;margin:auto;width:200px"> Topic is Locked </div>
+    }
+}
+else
+{
+    <div style="margin:auto;width:400px">
+        Please @Html.ActionLink("Login", "Login", "Account") or @Html.ActionLink("Registration", "Register", "Account") to send the message
+    </div>
+}
+
+<div style="clear:both"></div>
+
+<script>
+    MessagesModel = @(new MvcHtmlString(JsonConvert.SerializeObject(Model.Messages)))
+</script>
+
+<script>
+
+    function Message(data){
+        var model = this;
+
+        model.MessageID = ko.observable();
+        model.PostedDate = ko.observable();
+        model.AuthorName = ko.observable();
+        model.MessageText = ko.observable();
+        model.Image = ko.observable();
+        model.Country = ko.observable();
+        model.MessagesCount = ko.observable();
+        model.RegistrationDate = ko.observable();
+        model.LastEdit = ko.observable();
+
+        model.NewMessageText = ko.observable();
+
+        model.IsEditMode = ko.observable(false);
+
+        model.IsEditMode.subscribe(function (newValue) {
+            if (!newValue) {
+                model.NewMessageText(model.MessageText());
+            }
+        });
+
+        model.SaveMessage = function () {
+            model.MessageText(model.NewMessageText());
+            model.LastEdit(new Date());
+            model.IsEditMode(false);
+
+            UpdateMessage(model); // Message.js
+        };
+
+        model.Delete = function(id){
+            DeleteMessage(id);
+        };
+
+        function initialize() {
+            model.MessageID(data.MessageID);
+            model.PostedDate(new Date(data.PostedDate));
+            model.AuthorName(data.Author.Name);
+            model.Image(data.Author.Image);
+            model.Country(data.Author.Country);
+            model.MessagesCount(data.Author.MessagesCount);
+            model.RegistrationDate(new Date(data.Author.RegistrationDate));
+            model.MessageText(data.Message);
+            model.NewMessageText(data.Message);
+
+            if(data.LastEdit != null)
+            {
+                model.LastEdit(new Date(data.LastEdit));
+            };
+        }
+
+        initialize();
+    }
+
+    function Messages(data){
+        var model = this;
+
+        model.Messages = ko.observableArray();
+
+        function initialize() {
+            model.Messages(ko.utils.arrayMap(data, function (item, index) {
+                var messageModel = new Message(item);
+                return messageModel;
+            }));
+        }
+
+        initialize();
+    }
+
+    ko.applyBindings(new Messages(MessagesModel));
+
+</script>

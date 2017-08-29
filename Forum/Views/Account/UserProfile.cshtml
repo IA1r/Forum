@@ -1,0 +1,222 @@
+﻿@using Newtonsoft.Json
+@using Forum.Helpers
+@model Forum.ViewModels.ProfileViewModel
+
+@{
+    ViewBag.Title = "UserProfile";
+    string userLogin = HttpContext.Current.User.Identity.Name;
+}
+
+<h2 data-bind="text: Name"></h2>
+
+<div style="border:solid 1px black; margin: auto; min-height: 250px;position:relative">
+
+    <div style="width:800px;float:left">
+        <div style="width:200px;float:left;padding:5px">
+            <div><img data-bind="attr: { src: Image, height: 200, width: 143 }" /></div>
+            <form method="post" enctype="multipart/form-data"><input type="file" data-bind="value: NewImage,visible: IsEditMode" /></form>
+            <div data-bind="text: 'Role: ' + Role()"></div>
+            <div data-bind="text: 'Country: ' + Country(), visible: !IsEditMode()"></div>
+            <div data-bind="visible:IsEditMode">Country: <input type="text" data-bind="value: NewCountry" /></div>
+            <div data-bind="text: 'Messages: ' + Messages()"></div>
+        </div>
+
+        <div style="margin-left:300px;width:500px">
+            <div data-bind="text: 'Name: ' + NewName(), visible: !IsEditMode()"></div>
+            <div data-bind="visible:IsEditMode">Name: <input type="text" data-bind="value: NewName" /></div>
+            <div data-bind="text: 'Login: ' + Login()"></div>
+
+            <!-- ko if: Login() === "@userLogin" -->
+            <div data-bind="visible: IsEditMode"> Password: <input type="password" data-bind="value: NewPassword" /></div>
+            <!-- /ko -->
+
+            <div data-bind="text: 'Status: ' + Status()"></div>
+            <div data-bind="text: 'Registration: ' + (RegistrationDate().getDay()+ 1) +'/'+  (RegistrationDate().getMonth() + 1) +'/'+  RegistrationDate().getFullYear() "></div>
+
+            <fieldset style="border:1px solid grey;padding:5px">
+                <legend>Contacts</legend>
+                <div data-bind="text: 'Email: ' + Email(), visible: !IsEditMode()"></div>
+
+                <div data-bind="visible:IsEditMode">Email: 
+                    <input type="text" data-bind="value: newEmail" required />
+                    <label id="error_email" style="color:red"></label>
+                </div>
+
+                <!--ko if: ICQ() === null-->
+                <div data-bind="text: 'ICQ: ' + 'unknown', visible: !IsEditMode()"></div>
+                <!--/ko-->
+                <!--ko if: ICQ() !== null-->
+                <div data-bind="text: 'ICQ: ' + ICQ(), visible: !IsEditMode()"></div>
+                <!--/ko-->
+                <div data-bind="visible:IsEditMode">ICQ: <input type="text" data-bind="value: NewICQ " /></div>
+
+                <!--ko if: VK() === null-->
+                <div data-bind="text: 'VK: ' + 'unknown', visible: !IsEditMode()"></div>
+                <!--/ko-->
+                <!--ko if: VK() !== null-->
+                <div data-bind="text: 'VK: ' + VK(), visible: !IsEditMode()"></div>
+                <!--/ko-->
+
+                <div data-bind="visible:IsEditMode">VK: 
+                    <input type="text" data-bind="value: NewVK" />
+                    <label id="error_vk" style="color:red"></label>
+                </div>
+
+                <!--ko if: Skype() === null-->
+                <div data-bind="text: 'Skype: ' + 'unknown', visible: !IsEditMode()"></div>
+                <!--/ko-->
+                <!--ko if: Skype() !== null-->
+                <div data-bind="text: 'Skype: ' + Skype(), visible: !IsEditMode()"></div>
+                <!--/ko-->
+                <div data-bind="visible:IsEditMode">Skype: <input type="text" data-bind="value: NewSkype" /></div>
+            </fieldset>
+
+            <!-- ko if: Login() === "@userLogin" -->
+            <button id="edit_button" data-bind="click: function() { IsEditMode(true) }, visible: !IsEditMode()  ">Edit</button>
+            <button data-bind="click: SaveProfile, visible: IsEditMode ">Save</button>
+            <button data-bind="click: function(){ IsEditMode(false) },visible: IsEditMode">Close</button>
+            <!-- /ko -->
+        </div>
+    </div>
+
+    @if (Html.IsRoleOrStatus("Admin"))
+    {
+        <!--ko if: Role() !== "Admin" -->
+        <div style="float:right;padding:5px;"><button data-bind="click: BanUser, visible: !IsBanned()"> Ban</button></div>
+        <div style="float:right;padding:5px"><button data-bind="click: UnBanUser, visible: IsBanned"> UnBan</button></div> 
+         <!-- /ko -->
+    }
+
+    <div data-bind="visible: ReportField" class="b-popup" id="password_form">
+        <div class="b-popup-content" style="width:500px">
+            <label style="margin-left:50px">Report:</label>
+            <div> <textarea rows="10" cols="60" data-bind="value: Report"> </textarea> </div>
+            <label id="error_report" style="color:red"></label>
+            <div style="padding-top:5px;float:right"><button data-bind="click: Submit"> Submit</button></div>
+
+            <div style="clear:both"></div>
+        </div>
+    </div>
+
+    <div style="clear:both"></div>
+</div>
+
+<script>
+    PageModel = @(new MvcHtmlString(JsonConvert.SerializeObject(Model.UserProfile)))
+</script>
+
+<script>
+    function UserProfile(data) {
+
+        var model = this;
+
+        model.Id = ko.observable(data.UserID);
+        model.Name = ko.observable(data.Name);
+        model.Login = ko.observable(data.Login);
+        model.Image = ko.observable(data.Image);
+        model.Role = ko.observable(data.Role);
+        model.Country = ko.observable(data.Country);
+        model.Messages = ko.observable(data.MessagesCount);
+        model.Email = ko.observable(data.Email);
+        model.Status = ko.observable(data.Status);
+        model.IsBanned = ko.observable(data.IsBanned);
+        model.Password = ko.observable(data.Password);
+        model.ICQ = ko.observable(data.ICQ);
+        model.VK = ko.observable(data.VK);
+        model.Skype = ko.observable(data.Skype);
+        model.RegistrationDate = ko.observable(new Date(data.RegistrationDate));
+
+        model.NewName = ko.observable(data.Name);
+        model.NewPassword = ko.observable(data.Password);
+        model.newEmail = ko.observable(data.Email);
+        model.NewImage = ko.observable(data.Image);
+        model.NewCountry = ko.observable(data.Country);
+        model.NewICQ = ko.observable(data.ICQ);
+        model.NewVK = ko.observable(data.VK);
+        model.NewSkype = ko.observable(data.Skype);
+
+        //-------------------------------------- Update user Profile -----------------------------------------------------------
+
+        model.IsEditMode = ko.observable(false);
+        model.IsEditMode.subscribe(function (newValue) {
+            if (!newValue) {
+                model.NewName(model.Name());
+                model.NewPassword(model.Password());
+                model.newEmail(model.Email());
+                model.NewImage(model.Image());
+                model.NewCountry(model.Country());
+                model.NewICQ(model.ICQ());
+                model.NewVK(model.VK());
+                model.NewSkype(model.Skype());
+            }
+        });
+
+        model.SaveProfile = function () {
+
+            if(model.validation.isValid()){
+                model.Name(model.NewName());
+                model.Password(model.NewPassword());
+                model.Email(model.newEmail());
+                model.Image(model.NewImage());
+                model.Country(model.NewCountry());
+                model.ICQ(model.NewICQ());
+                model.VK(model.NewVK());
+                model.Skype(model.NewSkype());
+
+                model.IsEditMode(false);
+                UpdateProfile(model); //UserProfile.js
+
+            }
+            else{
+                model.validation.errors.showAllMessages();
+            }
+        }
+
+        //-------------------------------------- Validate new Data of user profile -----------------------------------------------------------
+
+        model.validation = ko.validatedObservable([
+            model.newEmail.extend({
+                required: true,
+                pattern:{
+                    message: 'Invalid Email.',
+                    params: /([A-Za-z0-9])+@@([a-z])+\.(ua|net|com|ru)$/
+                }}),
+            model.NewVK.extend({
+                pattern:{
+                    message:'Invalid Link',
+                    params: /(vk\.com\/)\w+/
+                }}),
+            model.NewPassword.extend({
+                required: true,
+                minLength: 8,
+                maxLength: 14,
+            }),
+            model.NewName.extend({
+                required: true,
+                pattern:{
+                    message: 'Invalid name, or short name.',
+                    params: /([A-Z]){1}([A-Za-z]){2,}$/
+                }})
+        ]);
+
+        //-------------------------------------- Submit Ban or Unban to user -----------------------------------------------------------
+
+        model.ReportField = ko.observable(false);
+        model.Report = ko.observable();
+
+        model.BanUser = function(){
+            model.ReportField(true);
+        }
+
+        model.Submit = function(){
+            SubmitBan(model.Id(),model.Report()); //UserProfile.js
+        }
+
+        model.UnBanUser = function(){
+            SubmitUnBan(model.Id()); //UserProfile.js
+        }
+    };
+
+    ko.applyBindings(new UserProfile(PageModel));
+
+</script>

@@ -1,0 +1,54 @@
+﻿@model Forum.ViewModels.CreateTopicViewModel
+
+@{
+    ViewBag.Title = "CreateTopic";
+}
+
+<h2>CreateTopic</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <div hidden="hidden">
+            @Html.TextBoxFor(model => model.Topic.Section, new { @Value = Model.Section })
+        </div>
+
+        <div>
+            <div style="float:left">
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Topic.Name)
+                </div>
+
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Topic.Name)
+                    @Html.ValidationMessageFor(model => model.Topic.Name)
+                </div>
+            </div>
+
+            <div style="float:left;margin-left:20px">
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Topic.Password)
+                </div>
+
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Topic.Password)
+                </div>
+            </div>
+        </div>
+
+        <div style="clear:both"></div>
+        <div>
+            <div class="editor-label">
+                @Html.Label("Message")
+            </div>
+
+            <div class="editor-field">
+                @Html.TextArea("message", htmlAttributes: new { rows = "10", cols = "100", @class = "message-style" })
+            </div>
+        </div>
+
+        <p> <input type="submit" value="ok" /> </p>
+
+    </fieldset>
+}

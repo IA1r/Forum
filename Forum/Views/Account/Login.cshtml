@@ -1,0 +1,40 @@
+﻿@model Forum.RequestModel.Login
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <div class="editor-label">
+            @Html.Label("Login")
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.UserLogin)
+            @Html.ValidationMessageFor(model => model.UserLogin)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Password)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Password)
+            @Html.ValidationMessageFor(model => model.Password)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.RememberMe)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.RememberMe)
+        </div>
+
+        <p>
+            <input type="submit" value="Login" />
+        </p>
+    </fieldset>
+}
